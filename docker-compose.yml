@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  webdav:
+    image: bytemark/webdav
+    ports:
+     - 80:80
+    environment:
+      AUTH_TYPE: Basic
+      USERNAME: frodo
+      PASSWORD: bolson
+    volumes:
+      - ./data/webdav:/var/lib/dav
+
+
+  rclone_rclone:
+    image: rclone/rclone
+    container_name: rclone_rclone
+    restart: always
+    command: rcd --rc-web-gui --rc-addr :5572 --rc-user frodo --rc-pass bolson
+    ports:
+      - "5572:5572"
+    volumes:
+      - ./config:/config/rclone
+      - ./data:/data:shared
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+    devices:
+      - /dev/fuse
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - PHP_TZ=Europe/Madrid
+      - PUID=1000
+      - PGID=1000
